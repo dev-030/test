@@ -42,7 +42,7 @@ app.get('/',(req,res) => {
 })
 
 
-const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.rfaan6v.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://netpay-server:zo9XaDDcnCg58gGZ@cluster0.rfaan6v.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -56,7 +56,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    client.connect();
 
 const userCollection = client.db('Netpay').collection('userCollection');
 const agentTransactionCollection = client.db('Netpay').collection('agentTransactions');
@@ -67,7 +67,7 @@ const userAllTransactionCollection = client.db('Netpay').collection('userAllTran
 app.post('/jwt', (req, res) => {
   const user = req.body;
   // console.log("this is user",user)
-  const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '6h'})
+  const token = jwt.sign(user, '9192730586d2d5e616cf82fe1e20543f62c792b57dfe6f7171f230cddb742d1060171ca1d1745d7bb326ee3791c12d7538e4df5820ace02a9a3642737e343744', {expiresIn: '6h'})
 
   res.send({token})
 
