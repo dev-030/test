@@ -455,6 +455,63 @@ app.patch ('/cashOut',async(req, res) => {
 })
 
 
+
+// ---------Requests handler----------
+
+app.post('/paymentdecision' , async(req,res) => {
+
+  const filter = {number: req.body.myinfo }; 
+
+  if(req.body.decision == 'accept'){
+
+    const sender = await userCollection.findOne(filter);
+    if(parseInt(sender?.balance) > parseInt(req.body.ammount)){
+      await userCollection.updateOne(filter, { $set: { balance: sender.balance-parseInt(req.body.ammount)}});
+      const receiver = await userCollection.updateOne({number: req.body.number }, { $inc: { balance: parseInt(req.body.ammount)}});
+      if(receiver.modifiedCount == 1){
+        const update = {
+          $pull: {
+            requests: { uniqueID: new ObjectId(req.body.uniqueID) },
+          },
+        };
+        const result = await userCollection.updateOne(filter,update);
+        res.send(result);
+      }
+    }
+  }else{
+    const update = {
+      $pull: {
+        requests: { uniqueID: new ObjectId(req.body.uniqueID) },
+      },
+    };
+    const result = await userCollection.updateOne(filter,update);
+    res.send(result);
+  }
+})
+
+
+// ---------Request payment ----------
+app.post('/requestpayment' , async(req,res) => {
+  const filter = {number: req.body.receiver }; 
+  const requestId = new ObjectId();
+
+  const update = {
+    $push: {
+      requests: {
+        from:req.body.senderName,
+        number:req.body.senderNumber,
+        ammount: req.body.amount,
+        message: req.body.message,
+        uniqueID : requestId
+      }
+    }
+  };
+  const result = await userCollection.updateOne(filter, update);
+  res.send(result);
+})
+
+
+
 // update admin role check
 app.patch('/allUsers/admin/:id', async (req, res) => {
   const id = req.params.id;
